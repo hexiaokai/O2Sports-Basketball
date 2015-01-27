@@ -24,7 +24,8 @@ import android.widget.TextView;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 
 
-public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, PlayerProfileFragment.OnFragmentInteractionListener {
+public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, PlayerProfileFragment.OnFragmentInteractionListener,
+        ArenaFragment.OnFragmentInteractionListener, SocialFragment.OnFragmentInteractionListener, FriendFragment.OnFragmentInteractionListener{
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -44,7 +45,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public static MobileServiceClient mClient;
 
-    public PlayerProfileFragment mPlayerProfile;
+    public static PlayerProfileFragment mPlayerProfile;
+    public static FriendFragment mFriends;
+    public static ArenaFragment mArenas;
+    public static SocialFragment mBlogs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +100,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         {
             messageDialog("Cannot connect to service");
         }
-
 
     }
 
@@ -152,10 +155,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
     }
 
-    public void onFragmentInteraction(Uri uri)
-    {
+    @Override
+    public void onFragmentInteraction(Uri uri)    {    }
 
-    }
+    @Override
+    public void onFragmentInteraction(String id) {    }
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -172,17 +176,37 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
 
-            /*
-            if (mPlayerProfile == null) {
-                mPlayerProfile = PlayerProfileFragment.newInstance("1c211a55-2a53-4152-b74f-ece1606e172a");
+            switch (position) {
+                case 0:
+                    if (mPlayerProfile == null) {
+                        mPlayerProfile = PlayerProfileFragment.newInstance("1c211a55-2a53-4152-b74f-ece1606e172a");
+                    }
+                    return mPlayerProfile;
+                case 1:
+                    if (mFriends == null){
+                        mFriends = FriendFragment.newInstance("1c211a55-2a53-4152-b74f-ece1606e172a");
+                    }
+                    return mFriends;
+                case 2:
+                    if (mArenas == null){
+                        mArenas = ArenaFragment.newInstance("1");
+                    }
+                    return mArenas;
+                case 3:
+                    if (mBlogs == null){
+                        mBlogs = SocialFragment.newInstance();
+                    }
+                    return mBlogs;
             }
-            */
-            return PlayerProfileFragment.newInstance("1c211a55-2a53-4152-b74f-ece1606e172a");
+
+            return null;
+
+
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
+            // Show 4 total pages.
             return 4;
         }
 

@@ -1,8 +1,11 @@
 package com.o2sports.hxiao.o2sports_basketball;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,10 +13,16 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 
+import com.microsoft.windowsazure.mobileservices.MobileServiceTable;
+import com.microsoft.windowsazure.mobileservices.ServiceFilterResponse;
+import com.microsoft.windowsazure.mobileservices.TableQueryCallback;
 import com.o2sports.hxiao.o2sports_basketball.dummy.DummyContent;
+
+import java.util.List;
 
 /**
  * A fragment representing a list of Items.
@@ -29,11 +38,14 @@ public class FriendFragment extends Fragment implements AbsListView.OnItemClickL
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
     // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private String playerID;
+    private Player currentPlayer;
+
+    private MobileServiceTable<Player> mPlayerTable;
+    //private MobileServiceTable<Follow> mFollowerTable;
+    //private MobileServiceTable<Follow> mFolloweeTable;
 
     private OnFragmentInteractionListener mListener;
 
@@ -46,14 +58,13 @@ public class FriendFragment extends Fragment implements AbsListView.OnItemClickL
      * The Adapter which will be used to populate the ListView/GridView with
      * Views.
      */
-    private ListAdapter mAdapter;
+    private PlayerListAdapter mAdapter;
 
     // TODO: Rename and change types of parameters
-    public static FriendFragment newInstance(String param1, String param2) {
+    public static FriendFragment newInstance(String param1) {
         FriendFragment fragment = new FriendFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -70,22 +81,63 @@ public class FriendFragment extends Fragment implements AbsListView.OnItemClickL
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            playerID = getArguments().getString(ARG_PARAM1);
         }
 
+        mPlayerTable = ((MainActivity)(this.getActivity())).mClient.getTable(Player.class);
+
         // TODO: Change Adapter to display your content
-        mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-                android.R.layout.simple_list_item_1, android.R.id.text1, DummyContent.ITEMS);
+        mAdapter = new PlayerListAdapter(this.getActivity(), R.id.friend_list);
+
+        mPlayerTable.execute(new TableQueryCallback<Player>() {
+            public void onCompleted(List<Player> result,
+                                    int count,
+                                    Exception exception,
+                                    ServiceFilterResponse response) {
+                if (exception == null )
+                {
+                    mAdapter.clear();
+                    if (! result.isEmpty())
+                    {
+                        for (Player p : result)
+                        {
+                            mAdapter.add(p);
+                        }
+                    }
+                }
+                else {
+                    if (exception != null) {
+                        messageDialog(exception.getMessage());
+                    }
+                    else
+                    {
+                        messageDialog("Player cannot be found");
+                    }
+                }
+            }
+        });
     }
 
+    protected void messageDialog(String dialogMessage)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+        builder.setMessage(dialogMessage);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                FriendFragment.this.getActivity().finish();
+            }
+        });
+        builder.create().show();
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_friend, container, false);
 
         // Set the adapter
-        mListView = (AbsListView) view.findViewById(android.R.id.list);
+        mListView = (AbsListView) view.findViewById(R.id.friend_list);
         ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
 
         // Set OnItemClickListener so we can be notified on item clicks

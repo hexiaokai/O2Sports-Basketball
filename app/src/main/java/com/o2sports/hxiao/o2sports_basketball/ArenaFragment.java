@@ -1,8 +1,10 @@
 package com.o2sports.hxiao.o2sports_basketball;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +15,12 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 
 
+import com.microsoft.windowsazure.mobileservices.MobileServiceTable;
+import com.microsoft.windowsazure.mobileservices.ServiceFilterResponse;
+import com.microsoft.windowsazure.mobileservices.TableQueryCallback;
 import com.o2sports.hxiao.o2sports_basketball.dummy.DummyContent;
+
+import java.util.List;
 
 /**
  * A fragment representing a list of Items.
@@ -29,11 +36,9 @@ public class ArenaFragment extends Fragment implements AbsListView.OnItemClickLi
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
     // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private String arenaID;
 
     private OnFragmentInteractionListener mListener;
 
@@ -46,14 +51,15 @@ public class ArenaFragment extends Fragment implements AbsListView.OnItemClickLi
      * The Adapter which will be used to populate the ListView/GridView with
      * Views.
      */
-    private ListAdapter mAdapter;
+    private ArenaListAdapter mAdapter;
+
+    private MobileServiceTable<Arena> mArenaTable;
 
     // TODO: Rename and change types of parameters
-    public static ArenaFragment newInstance(String param1, String param2) {
+    public static ArenaFragment newInstance(String param1) {
         ArenaFragment fragment = new ArenaFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -70,13 +76,54 @@ public class ArenaFragment extends Fragment implements AbsListView.OnItemClickLi
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            arenaID = getArguments().getString(ARG_PARAM1);
         }
 
-        // TODO: Change Adapter to display your content
-        mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-                android.R.layout.simple_list_item_1, android.R.id.text1, DummyContent.ITEMS);
+        mArenaTable = ((MainActivity)(this.getActivity())).mClient.getTable(Arena.class);
+
+        mAdapter = new ArenaListAdapter(this.getActivity(), R.id.arena_list);
+
+        mArenaTable.execute(new TableQueryCallback<Arena>() {
+            public void onCompleted(List<Arena> result,
+                                    int count,
+                                    Exception exception,
+                                    ServiceFilterResponse response) {
+                if (exception == null )
+                {
+                    mAdapter.clear();
+                    if (! result.isEmpty())
+                    {
+                        for (Arena a : result)
+                        {
+                            mAdapter.add(a);
+                        }
+                    }
+                }
+                else {
+                    if (exception != null) {
+                        messageDialog(exception.getMessage());
+                    }
+                    else
+                    {
+                        messageDialog("Arena cannot be found");
+                    }
+                }
+            }
+        });
+    }
+
+    protected void messageDialog(String dialogMessage)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+        builder.setMessage(dialogMessage);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                ArenaFragment.this.getActivity().finish();
+            }
+        });
+        builder.create().show();
     }
 
     @Override
@@ -85,7 +132,7 @@ public class ArenaFragment extends Fragment implements AbsListView.OnItemClickLi
         View view = inflater.inflate(R.layout.fragment_arena, container, false);
 
         // Set the adapter
-        mListView = (AbsListView) view.findViewById(android.R.id.list);
+        mListView = (AbsListView) view.findViewById(R.id.arena_list);
         ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
 
         // Set OnItemClickListener so we can be notified on item clicks

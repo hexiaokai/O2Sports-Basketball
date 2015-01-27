@@ -33,6 +33,7 @@ public class PlayerProfileFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String playerID;
     private Player currentPlayer;
+    private PlayerSkill currentPlayerSkill;
 
 
     private MobileServiceTable<Player> mPlayerTable;
@@ -88,12 +89,12 @@ public class PlayerProfileFragment extends Fragment {
                     ((TextView) currentView.findViewById(R.id.textView_position_value)).setText(((Integer) currentPlayer.position).toString());
 
                 } else {
-                    if (result.isEmpty()) {
-                        messageDialog("Player cannot be found");
+                    if (exception != null) {
+                        messageDialog(exception.getMessage());
                     }
                     else
                     {
-                        messageDialog(exception.getMessage());
+                        messageDialog("Player cannot be found");
                     }
                 }
             }
@@ -107,16 +108,16 @@ public class PlayerProfileFragment extends Fragment {
                                     Exception exception,
                                     ServiceFilterResponse response) {
                 if (exception == null && !result.isEmpty()) {
-                    Double totalScore = result.get(0).skill1 + result.get(0).skill2 +result.get(0).skill3 + result.get(0).skill4 + result.get(0).skill5
-                            + result.get(0).skill6 + result.get(0).skill6 + result.get(0).skill8 + result.get(0).skill9 + result.get(0).skill10;
+                    currentPlayerSkill = result.get(0);
+                    Double totalScore = currentPlayerSkill.totalScore();
                     ((TextView) currentView.findViewById(R.id.textView_score_overall_value)).setText(((Double) totalScore).toString());
                 } else {
-                    if (result.isEmpty()) {
-                        messageDialog("Player Score cannot be found");
+                    if (exception != null) {
+                        messageDialog(exception.getMessage());
                     }
                     else
                     {
-                        messageDialog(exception.getMessage());
+                        messageDialog("Player Score cannot be found");
                     }
                 }
             }
@@ -162,6 +163,23 @@ public class PlayerProfileFragment extends Fragment {
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
+        }
+
+
+    }
+
+    public void onResume()
+    {
+        super.onResume();
+        if (currentPlayer != null)
+        {
+            ((TextView) currentView.findViewById(R.id.textView_name_value)).setText(currentPlayer.name);
+            ((TextView) currentView.findViewById(R.id.textView_gender_value)).setText(currentPlayer.gender ? "Male" : "Female");
+            ((TextView) currentView.findViewById(R.id.textView_height_value)).setText(((Double) currentPlayer.height).toString());
+            ((TextView) currentView.findViewById(R.id.textView_weight_value)).setText(((Double) currentPlayer.weight).toString());
+            ((TextView) currentView.findViewById(R.id.textView_position_value)).setText(((Integer) currentPlayer.position).toString());
+
+            ((TextView) currentView.findViewById(R.id.textView_score_overall_value)).setText(((Double) currentPlayerSkill.totalScore()).toString());
         }
     }
 

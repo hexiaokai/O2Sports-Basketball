@@ -1,6 +1,5 @@
 package com.o2sports.hxiao.o2sports_basketball;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -14,6 +13,8 @@ import android.widget.TextView;
 
 
 import com.microsoft.windowsazure.mobileservices.*;
+import com.o2sports.hxiao.o2sports_basketball.entities.Player;
+import com.o2sports.hxiao.o2sports_basketball.entities.PlayerSkill;
 
 import java.util.List;
 

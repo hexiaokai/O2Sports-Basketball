@@ -27,6 +27,8 @@ public class SocialFragment extends Fragment {
 
     private View currentView;
 
+    private WebView engine;
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -47,23 +49,9 @@ public class SocialFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
+        if (getArguments() != null)
+        {
         }
-
-        //WebView engine = (WebView) currentView.findViewById(R.id.webView);
-
-/*
-        WebView engine = (WebView) currentView.findViewById(R.id.webView);
-        engine.getSettings().setJavaScriptEnabled(true);
-        engine.getSettings().setSupportMultipleWindows(true);
-        engine.setWebViewClient(new WebViewClient());
-        engine.loadUrl("http://everybodyup.azurewebsites.net/");
-
-
-        Uri blogUri = Uri.parse("http://everybodyup.azurewebsites.net/");
-        Intent launchBrowser = new Intent(Intent.ACTION_VIEW, blogUri);
-        startActivity(launchBrowser);
-  */
     }
 
     @Override
@@ -71,6 +59,12 @@ public class SocialFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         currentView = inflater.inflate(R.layout.fragment_social, container, false);
+        engine = (WebView)currentView.findViewById(R.id.webEngine);
+        engine.getSettings().setJavaScriptEnabled(true);
+        engine.getSettings().setSupportMultipleWindows(true);
+        engine.setWebViewClient(new WebViewClient());
+        engine.loadUrl("http://everybodyup.azurewebsites.net/recent-blogs");
+
         return currentView;
     }
 

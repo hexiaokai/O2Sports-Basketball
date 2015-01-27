@@ -5,22 +5,20 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 
 import com.microsoft.windowsazure.mobileservices.MobileServiceTable;
 import com.microsoft.windowsazure.mobileservices.ServiceFilterResponse;
 import com.microsoft.windowsazure.mobileservices.TableQueryCallback;
-import com.o2sports.hxiao.o2sports_basketball.dummy.DummyContent;
+import com.o2sports.hxiao.o2sports_basketball.adapter.ArenaListAdapter;
+import com.o2sports.hxiao.o2sports_basketball.entities.Arena;
 
 import java.util.List;
 
@@ -33,19 +31,14 @@ import java.util.List;
  * Activities containing this fragment MUST implement the {@link OnFragmentInteractionListener}
  * interface.
  */
-public class FriendFragment extends Fragment implements AbsListView.OnItemClickListener {
+public class ArenaListFragment extends Fragment implements AbsListView.OnItemClickListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
 
     // TODO: Rename and change types of parameters
-    private String playerID;
-    private Player currentPlayer;
-
-    private MobileServiceTable<Player> mPlayerTable;
-    //private MobileServiceTable<Follow> mFollowerTable;
-    //private MobileServiceTable<Follow> mFolloweeTable;
+    private String arenaID;
 
     private OnFragmentInteractionListener mListener;
 
@@ -58,11 +51,13 @@ public class FriendFragment extends Fragment implements AbsListView.OnItemClickL
      * The Adapter which will be used to populate the ListView/GridView with
      * Views.
      */
-    private PlayerListAdapter mAdapter;
+    private ArenaListAdapter mAdapter;
+
+    private MobileServiceTable<Arena> mArenaTable;
 
     // TODO: Rename and change types of parameters
-    public static FriendFragment newInstance(String param1) {
-        FriendFragment fragment = new FriendFragment();
+    public static ArenaListFragment newInstance(String param1) {
+        ArenaListFragment fragment = new ArenaListFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         fragment.setArguments(args);
@@ -73,7 +68,7 @@ public class FriendFragment extends Fragment implements AbsListView.OnItemClickL
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public FriendFragment() {
+    public ArenaListFragment() {
     }
 
     @Override
@@ -81,16 +76,15 @@ public class FriendFragment extends Fragment implements AbsListView.OnItemClickL
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null) {
-            playerID = getArguments().getString(ARG_PARAM1);
+            arenaID = getArguments().getString(ARG_PARAM1);
         }
 
-        mPlayerTable = ((MainActivity)(this.getActivity())).mClient.getTable(Player.class);
+        mArenaTable = ((MainActivity)(this.getActivity())).mClient.getTable(Arena.class);
 
-        // TODO: Change Adapter to display your content
-        mAdapter = new PlayerListAdapter(this.getActivity(), R.id.friend_list);
+        mAdapter = new ArenaListAdapter(this.getActivity(), R.id.arena_list);
 
-        mPlayerTable.execute(new TableQueryCallback<Player>() {
-            public void onCompleted(List<Player> result,
+        mArenaTable.execute(new TableQueryCallback<Arena>() {
+            public void onCompleted(List<Arena> result,
                                     int count,
                                     Exception exception,
                                     ServiceFilterResponse response) {
@@ -99,9 +93,9 @@ public class FriendFragment extends Fragment implements AbsListView.OnItemClickL
                     mAdapter.clear();
                     if (! result.isEmpty())
                     {
-                        for (Player p : result)
+                        for (Arena a : result)
                         {
-                            mAdapter.add(p);
+                            mAdapter.add(a);
                         }
                     }
                 }
@@ -111,7 +105,7 @@ public class FriendFragment extends Fragment implements AbsListView.OnItemClickL
                     }
                     else
                     {
-                        messageDialog("Player cannot be found");
+                        messageDialog("Arena cannot be found");
                     }
                 }
             }
@@ -126,18 +120,19 @@ public class FriendFragment extends Fragment implements AbsListView.OnItemClickL
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                FriendFragment.this.getActivity().finish();
+                ArenaListFragment.this.getActivity().finish();
             }
         });
         builder.create().show();
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_friend, container, false);
+        View view = inflater.inflate(R.layout.fragment_arena, container, false);
 
         // Set the adapter
-        mListView = (AbsListView) view.findViewById(R.id.friend_list);
+        mListView = (AbsListView) view.findViewById(R.id.arena_list);
         ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
 
         // Set OnItemClickListener so we can be notified on item clicks
@@ -169,7 +164,7 @@ public class FriendFragment extends Fragment implements AbsListView.OnItemClickL
         if (null != mListener) {
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
-            mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
+            mListener.onFragmentInteraction(mAdapter.getItem(position).id);
         }
     }
 

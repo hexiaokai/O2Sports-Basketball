@@ -13,19 +13,14 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, PlayerProfileFragment.OnFragmentInteractionListener,
-        ArenaFragment.OnFragmentInteractionListener, SocialFragment.OnFragmentInteractionListener, FriendFragment.OnFragmentInteractionListener{
+        ArenaListFragment.OnFragmentInteractionListener, SocialFragment.OnFragmentInteractionListener, FriendListFragment.OnFragmentInteractionListener{
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -46,8 +41,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static MobileServiceClient mClient;
 
     public static PlayerProfileFragment mPlayerProfile;
-    public static FriendFragment mFriends;
-    public static ArenaFragment mArenas;
+    public static FriendListFragment mFriends;
+    public static ArenaListFragment mArenas;
     public static SocialFragment mBlogs;
 
     @Override
@@ -59,6 +54,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
+        // put actionbar to bottom - failed
+        actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(true);
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -66,6 +65,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setOffscreenPageLimit(2);
 
         // When swiping between different sections, select the corresponding
         // tab. We can also use ActionBar.Tab#select() to do this if we have
@@ -159,7 +159,18 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void onFragmentInteraction(Uri uri)    {    }
 
     @Override
-    public void onFragmentInteraction(String id) {    }
+    public void onFragmentInteraction(String id)
+    {
+        PlayerProfileFragment friendProfile = PlayerProfileFragment.newInstance(id);
+
+        FragmentManager manager = getSupportFragmentManager();
+        manager.beginTransaction().replace(R.id.friend_list, friendProfile, "right")
+                .addToBackStack("right")
+                .commit();
+
+    }
+
+
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -184,12 +195,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     return mPlayerProfile;
                 case 1:
                     if (mFriends == null){
-                        mFriends = FriendFragment.newInstance("1c211a55-2a53-4152-b74f-ece1606e172a");
+                        mFriends = FriendListFragment.newInstance("1c211a55-2a53-4152-b74f-ece1606e172a");
                     }
                     return mFriends;
                 case 2:
                     if (mArenas == null){
-                        mArenas = ArenaFragment.newInstance("1");
+                        mArenas = ArenaListFragment.newInstance("1");
                     }
                     return mArenas;
                 case 3:

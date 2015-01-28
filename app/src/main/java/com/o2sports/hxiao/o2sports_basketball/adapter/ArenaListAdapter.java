@@ -9,7 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 
 import com.o2sports.hxiao.o2sports_basketball.R;
-import com.o2sports.hxiao.o2sports_basketball.entities.Arena;
+import com.o2sports.hxiao.o2sports_basketball.entity.Arena;
 
 /**
  * Created by Xiaokai He on 1/14/2015.
@@ -39,7 +39,7 @@ public class ArenaListAdapter extends ArrayAdapter<Arena> {
         ArenaButton.setTag(currentArena);
         ArenaButton.setText(currentArena.name);
         ArenaButton.setEnabled(true);
-        //ArenaButton.setOnClickListener((View.OnClickListener)mContext);
+        ArenaButton.setOnClickListener((View.OnClickListener)mContext);
 
         return row;
     }

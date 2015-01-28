@@ -9,7 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 
 import com.o2sports.hxiao.o2sports_basketball.R;
-import com.o2sports.hxiao.o2sports_basketball.entities.Player;
+import com.o2sports.hxiao.o2sports_basketball.entity.Player;
 
 /**
  * Created by Xiaokai He on 1/14/2015.
@@ -35,11 +35,12 @@ public class PlayerListAdapter extends ArrayAdapter<Player> {
 
         row.setTag(currentPlayer);
 
+
         final Button playerButton = (Button) row.findViewById(R.id.listButton);
         playerButton.setTag(currentPlayer);
         playerButton.setText(currentPlayer.name);
         playerButton.setEnabled(true);
-        //playerButton.setOnClickListener((View.OnClickListener)mContext);
+        playerButton.setOnClickListener((View.OnClickListener)mContext);
 
         return row;
     }

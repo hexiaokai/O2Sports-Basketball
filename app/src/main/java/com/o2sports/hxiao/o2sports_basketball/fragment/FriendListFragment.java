@@ -1,4 +1,4 @@
-package com.o2sports.hxiao.o2sports_basketball;
+package com.o2sports.hxiao.o2sports_basketball.fragment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -17,8 +17,10 @@ import android.widget.TextView;
 import com.microsoft.windowsazure.mobileservices.MobileServiceTable;
 import com.microsoft.windowsazure.mobileservices.ServiceFilterResponse;
 import com.microsoft.windowsazure.mobileservices.TableQueryCallback;
+import com.o2sports.hxiao.o2sports_basketball.MainActivity;
+import com.o2sports.hxiao.o2sports_basketball.R;
 import com.o2sports.hxiao.o2sports_basketball.adapter.PlayerListAdapter;
-import com.o2sports.hxiao.o2sports_basketball.entities.Player;
+import com.o2sports.hxiao.o2sports_basketball.entity.Player;
 
 import java.util.List;
 

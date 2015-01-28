@@ -1,7 +1,6 @@
-package com.o2sports.hxiao.o2sports_basketball;
+package com.o2sports.hxiao.o2sports_basketball.fragment;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import com.o2sports.hxiao.o2sports_basketball.R;
 
 
 /**

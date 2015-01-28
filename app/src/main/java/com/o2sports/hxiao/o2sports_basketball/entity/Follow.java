@@ -1,4 +1,4 @@
-package com.o2sports.hxiao.o2sports_basketball.entities;
+package com.o2sports.hxiao.o2sports_basketball.entity;
 
 /**
  * Created by hxiao on 1/27/2015.

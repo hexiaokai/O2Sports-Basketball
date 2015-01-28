@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">O2Sports-Basketball</string>
+    <string name="app_name">氧气篮球</string>
     <string name="title_section1">Profile</string>
     <string name="title_section2">Friends</string>
     <string name="title_section3">Game</string>

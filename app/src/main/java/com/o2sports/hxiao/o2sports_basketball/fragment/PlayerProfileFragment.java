@@ -1,4 +1,4 @@
-package com.o2sports.hxiao.o2sports_basketball;
+package com.o2sports.hxiao.o2sports_basketball.fragment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -13,8 +13,10 @@ import android.widget.TextView;
 
 
 import com.microsoft.windowsazure.mobileservices.*;
-import com.o2sports.hxiao.o2sports_basketball.entities.Player;
-import com.o2sports.hxiao.o2sports_basketball.entities.PlayerSkill;
+import com.o2sports.hxiao.o2sports_basketball.MainActivity;
+import com.o2sports.hxiao.o2sports_basketball.R;
+import com.o2sports.hxiao.o2sports_basketball.entity.Player;
+import com.o2sports.hxiao.o2sports_basketball.entity.PlayerSkill;
 
 import java.util.List;
 
@@ -32,7 +34,7 @@ public class PlayerProfileFragment extends Fragment {
     private static final String ARG_Player_ID = "param1";
 
     // TODO: Rename and change types of parameters
-    private String playerID;
+    public String playerID;
     private Player currentPlayer;
     private PlayerSkill currentPlayerSkill;
 
@@ -49,7 +51,6 @@ public class PlayerProfileFragment extends Fragment {
      * this fragment using the provided parameters.
      *
      * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment PlayerProfileFragment.
      */
     // TODO: Rename and change types and number of parameters

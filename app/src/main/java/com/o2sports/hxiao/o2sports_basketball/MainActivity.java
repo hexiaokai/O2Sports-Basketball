@@ -15,12 +15,21 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
+import com.o2sports.hxiao.o2sports_basketball.entity.*;
+import com.o2sports.hxiao.o2sports_basketball.fragment.ArenaListFragment;
+import com.o2sports.hxiao.o2sports_basketball.fragment.ArenaProfileFragment;
+import com.o2sports.hxiao.o2sports_basketball.fragment.FriendListFragment;
+import com.o2sports.hxiao.o2sports_basketball.fragment.PlayerProfileFragment;
+import com.o2sports.hxiao.o2sports_basketball.fragment.SocialFragment;
 
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, PlayerProfileFragment.OnFragmentInteractionListener,
-        ArenaListFragment.OnFragmentInteractionListener, SocialFragment.OnFragmentInteractionListener, FriendListFragment.OnFragmentInteractionListener{
+        ArenaListFragment.OnFragmentInteractionListener, SocialFragment.OnFragmentInteractionListener, FriendListFragment.OnFragmentInteractionListener,
+        ArenaProfileFragment.OnFragmentInteractionListener, View.OnClickListener
+{
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -44,6 +53,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static FriendListFragment mFriends;
     public static ArenaListFragment mArenas;
     public static SocialFragment mBlogs;
+
+    public String localPlayerID = "1c211a55-2a53-4152-b74f-ece1606e172a";
+
+    public static PlayerProfileFragment mFriendProfile;
+    public static ArenaProfileFragment mArenaProfile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,7 +158,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
         // When the given tab is selected, switch to the corresponding page in
         // the ViewPager.
+        while (getSupportFragmentManager().getBackStackEntryCount() > 0){
+
+                getSupportFragmentManager().popBackStackImmediate();
+        }
+
+
         mViewPager.setCurrentItem(tab.getPosition());
+
     }
 
     @Override
@@ -161,13 +182,61 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void onFragmentInteraction(String id)
     {
-        PlayerProfileFragment friendProfile = PlayerProfileFragment.newInstance(id);
+    }
+
+    public void checkinClicked(View v){
+        mArenaProfile.checkin(v);
+    }
+
+    @Override
+    public void onClick(View v) {
 
         FragmentManager manager = getSupportFragmentManager();
-        manager.beginTransaction().replace(R.id.friend_list, friendProfile, "right")
-                .addToBackStack("right")
-                .commit();
+        FragmentTransaction fragmentTransaction;
 
+        while (manager.getBackStackEntryCount() > 0){
+
+            manager.popBackStackImmediate();
+        }
+
+
+        if (v.getTag() instanceof Player) {
+
+            Player p = (Player) v.getTag();
+
+            if (mFriendProfile == null || mFriendProfile.playerID != p.id) {
+                mFriendProfile = PlayerProfileFragment.newInstance(p.id);
+            }
+            fragmentTransaction = manager.beginTransaction();
+            fragmentTransaction.hide(mFriends);
+            fragmentTransaction.add(android.R.id.content, mFriendProfile);
+            fragmentTransaction.addToBackStack("Player");
+            fragmentTransaction.commit();
+        }
+        else
+        {
+            if (v.getTag() instanceof Arena) {
+
+
+                Arena a = (Arena) v.getTag();
+
+                if (mArenaProfile == null || mArenaProfile.arenaID != a.id) {
+                    mArenaProfile = ArenaProfileFragment.newInstance(a.id);
+
+                }
+
+                fragmentTransaction = manager.beginTransaction();
+                fragmentTransaction.hide(mArenas);
+                fragmentTransaction.add(android.R.id.content, mArenaProfile);
+                fragmentTransaction.addToBackStack("Arena");
+                fragmentTransaction.commit();
+
+            }
+            else
+            {
+                // do nothing
+            }
+        }
     }
 
 
@@ -190,12 +259,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             switch (position) {
                 case 0:
                     if (mPlayerProfile == null) {
-                        mPlayerProfile = PlayerProfileFragment.newInstance("1c211a55-2a53-4152-b74f-ece1606e172a");
+                        mPlayerProfile = PlayerProfileFragment.newInstance(localPlayerID);
                     }
                     return mPlayerProfile;
                 case 1:
                     if (mFriends == null){
-                        mFriends = FriendListFragment.newInstance("1c211a55-2a53-4152-b74f-ece1606e172a");
+                        mFriends = FriendListFragment.newInstance(localPlayerID);
                     }
                     return mFriends;
                 case 2:

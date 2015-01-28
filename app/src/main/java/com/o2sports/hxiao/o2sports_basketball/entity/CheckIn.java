@@ -11,5 +11,7 @@ public class CheckIn {
     public String playerId;
     public String arenaId;
     public boolean is_registered;
-    public Date checkinTime;
+
+    @com.google.gson.annotations.SerializedName("__createdAt")
+    public Date CreatedAt;
 }

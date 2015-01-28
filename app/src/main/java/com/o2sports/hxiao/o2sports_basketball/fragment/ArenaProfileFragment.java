@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.microsoft.windowsazure.mobileservices.MobileServiceSystemProperty;
 import com.microsoft.windowsazure.mobileservices.MobileServiceTable;
 import com.microsoft.windowsazure.mobileservices.ServiceFilterResponse;
 import com.microsoft.windowsazure.mobileservices.TableOperationCallback;
@@ -22,6 +23,8 @@ import com.o2sports.hxiao.o2sports_basketball.entity.Arena;
 import com.o2sports.hxiao.o2sports_basketball.entity.CheckIn;
 
 import java.util.Date;
+import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -108,6 +111,12 @@ public class ArenaProfileFragment extends Fragment {
 
         mCheckInTable = ((MainActivity) this.getActivity()).mClient.getTable(CheckIn.class);
 
+        EnumSet<MobileServiceSystemProperty> mobileServiceSystemPropertyEnumSet = EnumSet.of(MobileServiceSystemProperty.CreatedAt);
+        mCheckInTable.setSystemProperties(mobileServiceSystemPropertyEnumSet);
+
+
+
+
         String playerID = ((MainActivity) this.getActivity()).localPlayerID;
 
         checkinButton = (Button) this.getActivity().findViewById(R.id.button_check_in);
@@ -115,15 +124,18 @@ public class ArenaProfileFragment extends Fragment {
         //TO Fix
         mCheckInTable
                 .execute(new TableQueryCallback<CheckIn>() {
+
                     public void onCompleted(List<CheckIn> result,
                                             int count,
                                             Exception exception,
                                             ServiceFilterResponse response) {
+                        Date now = new Date();
+                        Date compare = new Date(now.getTime() - 1 * 60 * 60 * 1000);
+
                         if (exception == null && !result.isEmpty()) {
-                            CheckIn latest = result.get(0);
-                            Date now = new Date();
-                            Date compare = new Date(now.getTime() - 1 * 60 * 60 * 1000);
-                            if (latest.checkinTime.after(compare)) {
+                            CheckIn latest = result.get(1);
+
+                            if (latest.CreatedAt.after(compare)) {
                                 isCheckedIn = true;
                                 checkinButton.setText("Checked In");
                                 checkinButton.setEnabled(false);
@@ -192,7 +204,7 @@ public class ArenaProfileFragment extends Fragment {
     public void checkin(View v) {
 
         CheckIn mCheckin = new CheckIn();
-        mCheckin.checkinTime = new Date();
+        mCheckin.CreatedAt = new Date();
         mCheckin.playerId = ((MainActivity) this.getActivity()).localPlayerID;
         mCheckin.arenaId = this.arenaID;
         mCheckin.is_registered = false; // TODO

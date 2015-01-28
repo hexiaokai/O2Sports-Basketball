@@ -19,7 +19,7 @@ import com.microsoft.windowsazure.mobileservices.TableQueryCallback;
 import com.o2sports.hxiao.o2sports_basketball.MainActivity;
 import com.o2sports.hxiao.o2sports_basketball.R;
 import com.o2sports.hxiao.o2sports_basketball.entity.Arena;
-import com.o2sports.hxiao.o2sports_basketball.entity.Checkin;
+import com.o2sports.hxiao.o2sports_basketball.entity.CheckIn;
 
 import java.util.Date;
 import java.util.List;
@@ -43,7 +43,7 @@ public class ArenaProfileFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
 
     private MobileServiceTable<Arena> mArenaTable;
-    private MobileServiceTable<Checkin> mCheckInTable;
+    private MobileServiceTable<CheckIn> mCheckInTable;
 
     private boolean isCheckedIn;
 
@@ -106,7 +106,7 @@ public class ArenaProfileFragment extends Fragment {
             }
         });
 
-        mCheckInTable = ((MainActivity) this.getActivity()).mClient.getTable(Checkin.class);
+        mCheckInTable = ((MainActivity) this.getActivity()).mClient.getTable(CheckIn.class);
 
         String playerID = ((MainActivity) this.getActivity()).localPlayerID;
 
@@ -114,13 +114,13 @@ public class ArenaProfileFragment extends Fragment {
 
         //TO Fix
         mCheckInTable
-                .execute(new TableQueryCallback<Checkin>() {
-                    public void onCompleted(List<Checkin> result,
+                .execute(new TableQueryCallback<CheckIn>() {
+                    public void onCompleted(List<CheckIn> result,
                                             int count,
                                             Exception exception,
                                             ServiceFilterResponse response) {
                         if (exception == null && !result.isEmpty()) {
-                            Checkin latest = result.get(0);
+                            CheckIn latest = result.get(0);
                             Date now = new Date();
                             Date compare = new Date(now.getTime() - 1 * 60 * 60 * 1000);
                             if (latest.checkinTime.after(compare)) {
@@ -191,14 +191,14 @@ public class ArenaProfileFragment extends Fragment {
 
     public void checkin(View v) {
 
-        Checkin mCheckin = new Checkin();
+        CheckIn mCheckin = new CheckIn();
         mCheckin.checkinTime = new Date();
         mCheckin.playerId = ((MainActivity) this.getActivity()).localPlayerID;
         mCheckin.arenaId = this.arenaID;
         mCheckin.is_registered = false; // TODO
 
-        mCheckInTable.insert(mCheckin, new TableOperationCallback<Checkin>() {
-            public void onCompleted(Checkin entity,
+        mCheckInTable.insert(mCheckin, new TableOperationCallback<CheckIn>() {
+            public void onCompleted(CheckIn entity,
                                     Exception exception,
                                     ServiceFilterResponse response) {
                 if (exception == null) {

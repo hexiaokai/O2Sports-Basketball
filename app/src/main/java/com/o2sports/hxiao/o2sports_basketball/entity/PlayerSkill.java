@@ -18,6 +18,11 @@ public class PlayerSkill {
     public double skill9;
     public double skill10;
 
+    public void setDefaultScore(double score)
+    {
+        skill1 = skill2 = skill3 = skill4 = skill5 = skill6 = skill7 = skill8 = skill9 = skill10 = score;
+    }
+
     public double totalScore()
     {
         return this.skill1 + this.skill2 + this.skill3 + this.skill4 + this.skill5 + this.skill6 + this.skill7 + this.skill8 + this.skill9 + this.skill10;

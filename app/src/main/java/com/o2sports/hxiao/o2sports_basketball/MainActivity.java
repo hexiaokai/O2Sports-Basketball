@@ -1,9 +1,14 @@
 package com.o2sports.hxiao.o2sports_basketball;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Locale;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
@@ -109,14 +114,52 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     "qJNqJihCYMDTfwYsbHbfURxaOfUNwh32",
                     this
             );
-
         }
         catch (Exception e)
         {
             messageDialog("Cannot connect to service");
         }
 
+        //Get local player ID
+        String FILENAME = "playerID";
+        try
+        {
+            FileInputStream fis = openFileInput(FILENAME);
+            byte[] buffer = new byte[]{};
+            fis.read(buffer);
+            this.localPlayerID = buffer.toString();
+
+        }
+        catch (FileNotFoundException fileNotFoundException)
+        {
+            Intent mIntent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(mIntent);
+            //startActivityForResult(mIntent, R.layout.activity_main);
+
+        }
+        catch (IOException iOException)
+        {
+            messageDialog(iOException.getMessage());
+        }
+
     }
+
+    //Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // TODO Auto-generated method stub
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case R.layout.activity_main:
+                if(requestCode==20){
+                    localPlayerID= data.getStringExtra("ID");
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
+
 
     protected void messageDialog(String dialogMessage)
     {
@@ -192,6 +235,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void registerClicked(View v){
         mArenaProfile.register(v);
     }
+
 
 
     @Override

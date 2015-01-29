@@ -73,8 +73,6 @@ public class PlayerProfileFragment extends Fragment {
             playerID = getArguments().getString(ARG_Player_ID);
         }
 
-
-
         mPlayerTable = ((MainActivity)(this.getActivity())).mClient.getTable(Player.class);
 
         mPlayerTable.where().field("id").eq(playerID).execute(new TableQueryCallback<Player>() {

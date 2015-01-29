@@ -177,12 +177,16 @@ public class ArenaProfileFragment extends Fragment {
 
         mRegistrationTable = ((MainActivity) this.getActivity()).mClient.getTable(Registration.class);
 
+        Date today = new Date();
+        Calendar cal = Calendar.getInstance();
+
+        //TODO May have offset issue
         mRegistrationTable.where()
                 .field("PlayerId").eq(((MainActivity) (this.getActivity())).localPlayerID)
                 .and().field("ArenaId").eq(this.arenaID)
-                .and().year("StartTime").eq(Calendar.YEAR)
-                .and().month("StartTime").eq(Calendar.MONTH)
-                .and().day("StartTime").eq(Calendar.DATE)
+                .and().year("StartTime").eq(today.getYear() + 1900)
+                .and().month("StartTime").eq(today.getMonth() + 1)
+                .and().day("StartTime").eq(today.getDate())
                 .execute(new TableQueryCallback<Registration>() {
 
                     public void onCompleted(List<Registration> result,
@@ -311,7 +315,7 @@ public class ArenaProfileFragment extends Fragment {
                                           int monthOfYear, int dayOfMonth) {
                         // Display Selected date in textbox
                         //txtDate.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
-                        registrationDate.setYear(year);
+                        registrationDate.setYear(year - 1900);
                         registrationDate.setMonth(monthOfYear);
                         registrationDate.setDate(dayOfMonth);
                         collectRegistrationTime();

@@ -107,7 +107,7 @@ public class FriendListFragment extends Fragment implements AbsListView.OnItemCl
                 }
                 else {
                     if (exception != null) {
-                        messageDialog(exception.getMessage());
+                        messageDialog(exception.getMessage() + response.getContent());
                     }
                     else
                     {

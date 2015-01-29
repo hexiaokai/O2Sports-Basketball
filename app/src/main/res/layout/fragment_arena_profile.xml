@@ -78,8 +78,32 @@
         android:layout_height="wrap_content"
         android:text="Check In"
         android:id="@+id/button_check_in"
+        android:onClick="checkInClicked"
+        android:layout_below="@+id/textView_basket_count"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="50dp" />
+
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Register"
+        android:id="@+id/button_register"
+        android:onClick="registerClicked"
+        android:layout_marginTop="125dp"
+        android:layout_below="@+id/button_check_in"
+        android:layout_alignRight="@+id/button_check_in"
+        android:layout_alignEnd="@+id/button_check_in" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/textView_registration_time"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:onClick="checkinClicked"/>
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
 
 </RelativeLayout>

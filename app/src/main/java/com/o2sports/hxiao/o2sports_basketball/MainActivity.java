@@ -109,6 +109,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     "qJNqJihCYMDTfwYsbHbfURxaOfUNwh32",
                     this
             );
+
         }
         catch (Exception e)
         {
@@ -184,9 +185,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     {
     }
 
-    public void checkinClicked(View v){
-        mArenaProfile.checkin(v);
+    public void checkInClicked(View v){
+        mArenaProfile.checkIn(v);
     }
+
+    public void registerClicked(View v){
+        mArenaProfile.register(v);
+    }
+
 
     @Override
     public void onClick(View v) {

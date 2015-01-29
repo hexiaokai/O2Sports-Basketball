@@ -2,6 +2,8 @@ package com.o2sports.hxiao.o2sports_basketball.fragment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,10 +12,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import com.microsoft.windowsazure.mobileservices.MobileServiceSystemProperty;
 import com.microsoft.windowsazure.mobileservices.MobileServiceTable;
+import com.microsoft.windowsazure.mobileservices.QueryOrder;
 import com.microsoft.windowsazure.mobileservices.ServiceFilterResponse;
 import com.microsoft.windowsazure.mobileservices.TableOperationCallback;
 import com.microsoft.windowsazure.mobileservices.TableQueryCallback;
@@ -21,10 +26,14 @@ import com.o2sports.hxiao.o2sports_basketball.MainActivity;
 import com.o2sports.hxiao.o2sports_basketball.R;
 import com.o2sports.hxiao.o2sports_basketball.entity.Arena;
 import com.o2sports.hxiao.o2sports_basketball.entity.CheckIn;
+import com.o2sports.hxiao.o2sports_basketball.entity.Registration;
 
+import org.w3c.dom.Text;
+
+import java.sql.Time;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -47,13 +56,26 @@ public class ArenaProfileFragment extends Fragment {
 
     private MobileServiceTable<Arena> mArenaTable;
     private MobileServiceTable<CheckIn> mCheckInTable;
+    private MobileServiceTable<Registration> mRegistrationTable;
 
     private boolean isCheckedIn;
 
     private Arena currentArena;
     private View currentView;
 
-    public Button checkinButton;
+    public Button checkInButton;
+
+    public int mYear;
+    public int mMonth;
+    public int mDay;
+    public int mHour;
+    public int mMinute;
+
+    public Date registrationDate;
+
+    public boolean registered = false;
+
+
 
 
     /**
@@ -99,7 +121,7 @@ public class ArenaProfileFragment extends Fragment {
 
                 } else {
                     if (exception != null) {
-                        messageDialog(exception.getMessage());
+                        messageDialog(exception.getMessage() + response.getContent());
                     }
                     else
                     {
@@ -114,15 +136,13 @@ public class ArenaProfileFragment extends Fragment {
         EnumSet<MobileServiceSystemProperty> mobileServiceSystemPropertyEnumSet = EnumSet.of(MobileServiceSystemProperty.CreatedAt);
         mCheckInTable.setSystemProperties(mobileServiceSystemPropertyEnumSet);
 
-
-
-
         String playerID = ((MainActivity) this.getActivity()).localPlayerID;
-
-        checkinButton = (Button) this.getActivity().findViewById(R.id.button_check_in);
-
         //TO Fix
-        mCheckInTable
+        mCheckInTable.where()
+                .field("PlayerId").eq(((MainActivity) (this.getActivity())).localPlayerID)
+                .and().field("ArenaId").eq(this.arenaID)
+                .select("Id", "ArenaId", "PlayerId", "Is_registered", "CreatedAt")
+                .orderBy("CreatedAt", QueryOrder.Descending).top(1)
                 .execute(new TableQueryCallback<CheckIn>() {
 
                     public void onCompleted(List<CheckIn> result,
@@ -133,20 +153,57 @@ public class ArenaProfileFragment extends Fragment {
                         Date compare = new Date(now.getTime() - 1 * 60 * 60 * 1000);
 
                         if (exception == null && !result.isEmpty()) {
-                            CheckIn latest = result.get(1);
+                            CheckIn latest = result.get(0);
 
                             if (latest.CreatedAt.after(compare)) {
                                 isCheckedIn = true;
-                                checkinButton.setText("Checked In");
-                                checkinButton.setEnabled(false);
+                                checkInButton.setText("Checked In");
+                                checkInButton.setEnabled(false);
                             }
                         } else {
                             if (exception != null) {
-                                messageDialog(exception.getMessage());
+                                messageDialog(exception.getMessage() + response.getContent());
                             } else {
                                 isCheckedIn = false;
-                                checkinButton.setText("Check In");
-                                checkinButton.setEnabled(true);
+                                checkInButton.setText("Check In");
+                                checkInButton.setEnabled(true);
+                            }
+
+
+                        }
+                    }
+                });
+
+
+        mRegistrationTable = ((MainActivity) this.getActivity()).mClient.getTable(Registration.class);
+
+        mRegistrationTable.where()
+                .field("PlayerId").eq(((MainActivity) (this.getActivity())).localPlayerID)
+                .and().field("ArenaId").eq(this.arenaID)
+                .and().year("StartTime").eq(Calendar.YEAR)
+                .and().month("StartTime").eq(Calendar.MONTH)
+                .and().day("StartTime").eq(Calendar.DATE)
+                .execute(new TableQueryCallback<Registration>() {
+
+                    public void onCompleted(List<Registration> result,
+                                            int count,
+                                            Exception exception,
+                                            ServiceFilterResponse response) {
+
+
+                        if (exception == null && !result.isEmpty()) {
+                            registered = true;
+                            ((Button) currentView.findViewById(R.id.button_register)).setEnabled(false);
+                            ((Button) currentView.findViewById(R.id.button_register)).setText("Registered");
+                            registrationDate = result.get(0).StartTime;
+                            ((TextView) currentView.findViewById(R.id.textView_registration_time)).setText(registrationDate.toString());
+                        } else {
+                            if (exception != null) {
+                                messageDialog(exception.getMessage() + response.getContent());
+                            } else {
+                                registered = false;
+                                ((Button) currentView.findViewById(R.id.button_register)).setEnabled(true);
+                                ((Button) currentView.findViewById(R.id.button_register)).setText("Register");
                             }
 
 
@@ -174,6 +231,7 @@ public class ArenaProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         currentView =  inflater.inflate(R.layout.fragment_arena_profile, container, false);
+        checkInButton = (Button) currentView.findViewById(R.id.button_check_in);
         return currentView;
     }
 
@@ -201,10 +259,11 @@ public class ArenaProfileFragment extends Fragment {
         mListener = null;
     }
 
-    public void checkin(View v) {
+    public void checkIn(View v) {
 
         CheckIn mCheckin = new CheckIn();
         mCheckin.CreatedAt = new Date();
+
         mCheckin.playerId = ((MainActivity) this.getActivity()).localPlayerID;
         mCheckin.arenaId = this.arenaID;
         mCheckin.is_registered = false; // TODO
@@ -214,14 +273,112 @@ public class ArenaProfileFragment extends Fragment {
                                     Exception exception,
                                     ServiceFilterResponse response) {
                 if (exception == null) {
-                    checkinButton.setText("Checked In");
-                    checkinButton.setEnabled(false);
+                    checkInButton.setText("Checked In");
+                    checkInButton.setEnabled(false);
+                }
+                else
+                {
+                    messageDialog(exception.getMessage() + response.getContent());
+                }
+            }
+        });
+    }
+
+    public void register(View v) {
+        final Calendar c = Calendar.getInstance();
+        mYear = c.get(Calendar.YEAR);
+        mMonth = c.get(Calendar.MONTH);
+        mDay = c.get(Calendar.DAY_OF_MONTH);
+        mHour = c.get(Calendar.HOUR_OF_DAY);
+        mMinute = c.get(Calendar.MINUTE);
+
+        registrationDate = new Date();
+
+        collectRegistrationDate();
+
+
+    }
+
+    public void collectRegistrationDate()
+    {
+
+        DatePickerDialog dpd;
+        dpd = new DatePickerDialog(this.getActivity(),
+                new DatePickerDialog.OnDateSetListener() {
+
+                    @Override
+                    public void onDateSet(DatePicker view, int year,
+                                          int monthOfYear, int dayOfMonth) {
+                        // Display Selected date in textbox
+                        //txtDate.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
+                        registrationDate.setYear(year);
+                        registrationDate.setMonth(monthOfYear);
+                        registrationDate.setDate(dayOfMonth);
+                        collectRegistrationTime();
+
+
+                    }
+                }, mYear, mMonth, mDay);
+        dpd.show();
+    }
+
+    public void collectRegistrationTime()
+    {
+        if (!registered) {
+            registered = true;
+            TimePickerDialog tpd;
+
+            tpd = new TimePickerDialog(this.getActivity(),
+                    new TimePickerDialog.OnTimeSetListener() {
+
+                        @Override
+                        public void onTimeSet(TimePicker view, int hour,
+                                              int minute) {
+                            // Display Selected date in textbox
+                            //txtDate.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
+                            //collectRegistrationTime();
+                            registrationDate.setHours(hour);
+                            registrationDate.setMinutes(minute);
+
+                            ((TextView) currentView.findViewById(R.id.textView_registration_time)).setText(registrationDate.toString());
+
+                            // insert to DB
+
+                            registrationInsert();
+
+                        }
+                    }, mHour, mMinute, true);
+            tpd.show();
+        }
+    }
+
+
+    public void registrationInsert()
+    {
+        Registration mRegistration = new Registration();
+
+        mRegistration.playerId = ((MainActivity) this.getActivity()).localPlayerID;
+        mRegistration.arenaId = this.arenaID;
+        mRegistration.StartTime = registrationDate;
+
+        mRegistration.EndTime = new Date(registrationDate.getTime() + 1 * 60 * 60 * 1000); //TODO
+
+        mRegistrationTable.insert(mRegistration, new TableOperationCallback<Registration>() {
+            @Override
+            public void onCompleted(Registration registration, Exception exception, ServiceFilterResponse response) {
+                if (exception == null) {
+                    ((Button) currentView.findViewById(R.id.button_register)).setEnabled(false);
+                    ((Button) currentView.findViewById(R.id.button_register)).setText("Registered");
+                }
+                else
+                {
+                    messageDialog(exception.getMessage() + response.getContent());
                 }
             }
         });
 
-
     }
+
 
     /**
      * This interface must be implemented by activities that contain this

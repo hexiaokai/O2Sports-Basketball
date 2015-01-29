@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * Created by hxiao on 1/28/2015.
  */
-public class CheckIn {
+public class Registration {
 
     public String id;
 
@@ -14,8 +14,7 @@ public class CheckIn {
 
     public String arenaId;
 
-    public boolean is_registered;
+    public Date StartTime;
 
-    @com.google.gson.annotations.SerializedName("__createdAt")
-    public Date CreatedAt;
+    public Date EndTime;
 }

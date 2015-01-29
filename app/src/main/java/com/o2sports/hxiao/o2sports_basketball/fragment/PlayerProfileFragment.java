@@ -92,7 +92,7 @@ public class PlayerProfileFragment extends Fragment {
 
                 } else {
                     if (exception != null) {
-                        messageDialog(exception.getMessage());
+                        messageDialog(exception.getMessage() + response.getContent());
                     }
                     else
                     {
@@ -115,7 +115,7 @@ public class PlayerProfileFragment extends Fragment {
                     ((TextView) currentView.findViewById(R.id.textView_score_overall_value)).setText(((Double) totalScore).toString());
                 } else {
                     if (exception != null) {
-                        messageDialog(exception.getMessage());
+                        messageDialog(exception.getMessage() + response.getContent());
                     }
                     else
                     {

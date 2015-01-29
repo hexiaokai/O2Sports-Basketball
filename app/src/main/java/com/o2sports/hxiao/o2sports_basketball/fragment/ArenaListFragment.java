@@ -103,7 +103,7 @@ public class ArenaListFragment extends Fragment implements AbsListView.OnItemCli
                 }
                 else {
                     if (exception != null) {
-                        messageDialog(exception.getMessage());
+                        messageDialog(exception.getMessage() + response.getContent());
                     }
                     else
                     {

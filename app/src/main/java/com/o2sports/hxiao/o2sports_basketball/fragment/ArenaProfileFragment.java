@@ -311,50 +311,55 @@ public class ArenaProfileFragment extends Fragment {
 
     public void collectRegistrationDate()
     {
+        if(!registered) {
 
-        DatePickerDialog dpd;
-        dpd = new DatePickerDialog(this.getActivity(),
-                new DatePickerDialog.OnDateSetListener() {
+            DatePickerDialog dpd;
+            dpd = new DatePickerDialog(this.getActivity(),
+                    new DatePickerDialog.OnDateSetListener() {
 
-                    @Override
-                    public void onDateSet(DatePicker view, int year,
-                                          int monthOfYear, int dayOfMonth) {
-                        // Display Selected date in textbox
-                        //txtDate.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
-                        registrationDate.setYear(year - 1900);
-                        registrationDate.setMonth(monthOfYear);
-                        registrationDate.setDate(dayOfMonth);
-                        collectRegistrationTime();
+                        @Override
+                        public void onDateSet(DatePicker view, int year,
+                                              int monthOfYear, int dayOfMonth) {
+                            // Display Selected date in textbox
+                            //txtDate.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
+                            registrationDate.setYear(year - 1900);
+                            registrationDate.setMonth(monthOfYear);
+                            registrationDate.setDate(dayOfMonth);
+
+                            collectRegistrationTime();
 
 
-                    }
-                }, mYear, mMonth, mDay);
-        dpd.show();
+                        }
+                    }, mYear, mMonth, mDay);
+            dpd.show();
+        }
     }
 
     public void collectRegistrationTime()
     {
         if (!registered) {
+            // for fixing duplicated registration record
             registered = true;
             TimePickerDialog tpd;
 
             tpd = new TimePickerDialog(this.getActivity(),
                     new TimePickerDialog.OnTimeSetListener() {
 
+                        public boolean timeSet = false;
+
                         @Override
                         public void onTimeSet(TimePicker view, int hour,
                                               int minute) {
-                            // Display Selected date in textbox
-                            //txtDate.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
-                            //collectRegistrationTime();
-                            registrationDate.setHours(hour);
-                            registrationDate.setMinutes(minute);
 
-                            ((TextView) currentView.findViewById(R.id.textView_registration_time)).setText(registrationDate.toString());
+                            if (!timeSet) {
+                                timeSet = true;
+                                registrationDate.setHours(hour);
+                                registrationDate.setMinutes(minute);
 
-                            // insert to DB
+                                // insert to DB
 
-                            registrationInsert();
+                                registrationInsert();
+                            }
 
                         }
                     }, mHour, mMinute, true);
@@ -379,6 +384,7 @@ public class ArenaProfileFragment extends Fragment {
                 if (exception == null) {
                     ((Button) currentView.findViewById(R.id.button_register)).setEnabled(false);
                     ((Button) currentView.findViewById(R.id.button_register)).setText("Registered");
+                    ((TextView) currentView.findViewById(R.id.textView_registration_time)).setText(registrationDate.toString());
                 }
                 else
                 {

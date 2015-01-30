@@ -75,6 +75,7 @@ public class PlayerProfileFragment extends Fragment {
 
         mPlayerTable = ((MainActivity)(this.getActivity())).mClient.getTable(Player.class);
 
+
         mPlayerTable.where().field("id").eq(playerID).execute(new TableQueryCallback<Player>() {
             public void onCompleted(List<Player> result,
                                     int count,
@@ -84,8 +85,8 @@ public class PlayerProfileFragment extends Fragment {
                     currentPlayer = result.get(0);
                     ((TextView) currentView.findViewById(R.id.textView_name_value)).setText(currentPlayer.name);
                     ((TextView) currentView.findViewById(R.id.textView_gender_value)).setText(currentPlayer.gender ? "Male" : "Female");
-                    ((TextView) currentView.findViewById(R.id.textView_height_value)).setText(((Double) currentPlayer.height).toString());
-                    ((TextView) currentView.findViewById(R.id.textView_weight_value)).setText(((Double) currentPlayer.weight).toString());
+                    ((TextView) currentView.findViewById(R.id.textView_height_value)).setText(((Integer) currentPlayer.height).toString());
+                    ((TextView) currentView.findViewById(R.id.textView_weight_value)).setText(((Integer) currentPlayer.weight).toString());
                     ((TextView) currentView.findViewById(R.id.textView_position_value)).setText(((Integer) currentPlayer.position).toString());
 
                 } else {
@@ -101,6 +102,7 @@ public class PlayerProfileFragment extends Fragment {
         });
 
         mPlayerSkillTable = ((MainActivity)(this.getActivity())).mClient.getTable(PlayerSkill.class);
+
 
         mPlayerSkillTable.where().field("playerID").eq(playerID).execute(new TableQueryCallback<PlayerSkill>() {
             public void onCompleted(List<PlayerSkill> result,
@@ -175,8 +177,8 @@ public class PlayerProfileFragment extends Fragment {
         {
             ((TextView) currentView.findViewById(R.id.textView_name_value)).setText(currentPlayer.name);
             ((TextView) currentView.findViewById(R.id.textView_gender_value)).setText(currentPlayer.gender ? "Male" : "Female");
-            ((TextView) currentView.findViewById(R.id.textView_height_value)).setText(((Double) currentPlayer.height).toString());
-            ((TextView) currentView.findViewById(R.id.textView_weight_value)).setText(((Double) currentPlayer.weight).toString());
+            ((TextView) currentView.findViewById(R.id.textView_height_value)).setText(((Integer) currentPlayer.height).toString());
+            ((TextView) currentView.findViewById(R.id.textView_weight_value)).setText(((Integer) currentPlayer.weight).toString());
             ((TextView) currentView.findViewById(R.id.textView_position_value)).setText(((Integer) currentPlayer.position).toString());
 
             ((TextView) currentView.findViewById(R.id.textView_score_overall_value)).setText(((Double) currentPlayerSkill.totalScore()).toString());

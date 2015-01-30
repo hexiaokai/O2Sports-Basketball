@@ -7,7 +7,7 @@ public class Player {
     public String id;
     public String name;
     public int position;
-    public double height;
-    public double weight;
+    public int height;
+    public int weight;
     public boolean gender;
 }

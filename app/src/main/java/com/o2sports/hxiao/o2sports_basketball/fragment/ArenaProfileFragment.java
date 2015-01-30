@@ -177,16 +177,14 @@ public class ArenaProfileFragment extends Fragment {
 
         mRegistrationTable = ((MainActivity) this.getActivity()).mClient.getTable(Registration.class);
 
-        Date today = new Date();
+        final Date today = new Date();
         Calendar cal = Calendar.getInstance();
 
         //TODO May have offset issue
         mRegistrationTable.where()
                 .field("PlayerId").eq(((MainActivity) (this.getActivity())).localPlayerID)
                 .and().field("ArenaId").eq(this.arenaID)
-                .and().year("StartTime").eq(today.getYear() + 1900)
-                .and().month("StartTime").eq(today.getMonth() + 1)
-                .and().day("StartTime").eq(today.getDate())
+                .orderBy("StartTime", QueryOrder.Descending).top(1)
                 .execute(new TableQueryCallback<Registration>() {
 
                     public void onCompleted(List<Registration> result,
@@ -196,11 +194,19 @@ public class ArenaProfileFragment extends Fragment {
 
 
                         if (exception == null && !result.isEmpty()) {
-                            registered = true;
-                            ((Button) currentView.findViewById(R.id.button_register)).setEnabled(false);
-                            ((Button) currentView.findViewById(R.id.button_register)).setText("Registered");
-                            registrationDate = result.get(0).StartTime;
-                            ((TextView) currentView.findViewById(R.id.textView_registration_time)).setText(registrationDate.toString());
+                            if (result.get(0).StartTime.after(today)) {
+                                registered = true;
+                                ((Button) currentView.findViewById(R.id.button_register)).setEnabled(false);
+                                ((Button) currentView.findViewById(R.id.button_register)).setText("Registered");
+                                registrationDate = result.get(0).StartTime;
+                                ((TextView) currentView.findViewById(R.id.textView_registration_time)).setText(registrationDate.toString());
+                            }
+                            else
+                            {
+                                registered = false;
+                                ((Button) currentView.findViewById(R.id.button_register)).setEnabled(true);
+                                ((Button) currentView.findViewById(R.id.button_register)).setText("Register");
+                            }
                         } else {
                             if (exception != null) {
                                 messageDialog(exception.getMessage() + response.getContent());

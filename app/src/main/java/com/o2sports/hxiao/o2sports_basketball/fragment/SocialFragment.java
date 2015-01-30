@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.o2sports.hxiao.o2sports_basketball.MainActivity;
 import com.o2sports.hxiao.o2sports_basketball.R;
 
 
@@ -64,7 +65,10 @@ public class SocialFragment extends Fragment {
         engine.getSettings().setJavaScriptEnabled(true);
         engine.getSettings().setSupportMultipleWindows(true);
         engine.setWebViewClient(new WebViewClient());
+
+        ((MainActivity)(this.getActivity())).pDialog.show();
         engine.loadUrl("http://everybodyup.azurewebsites.net/recent-blogs");
+        ((MainActivity)(this.getActivity())).pDialog.hide();
 
         return currentView;
     }

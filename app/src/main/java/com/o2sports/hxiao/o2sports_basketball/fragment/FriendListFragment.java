@@ -88,7 +88,6 @@ public class FriendListFragment extends Fragment implements AbsListView.OnItemCl
 
         // TODO: Update to query follow table
         mAdapter = new PlayerListAdapter(this.getActivity(), R.id.friend_list);
-
         mPlayerTable.execute(new TableQueryCallback<Player>() {
             public void onCompleted(List<Player> result,
                                     int count,

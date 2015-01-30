@@ -7,8 +7,10 @@ import java.io.IOException;
 import java.util.Locale;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
@@ -27,13 +29,14 @@ import com.o2sports.hxiao.o2sports_basketball.entity.*;
 import com.o2sports.hxiao.o2sports_basketball.fragment.ArenaListFragment;
 import com.o2sports.hxiao.o2sports_basketball.fragment.ArenaProfileFragment;
 import com.o2sports.hxiao.o2sports_basketball.fragment.FriendListFragment;
+import com.o2sports.hxiao.o2sports_basketball.fragment.LoginFragment;
 import com.o2sports.hxiao.o2sports_basketball.fragment.PlayerProfileFragment;
 import com.o2sports.hxiao.o2sports_basketball.fragment.SocialFragment;
 
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, PlayerProfileFragment.OnFragmentInteractionListener,
         ArenaListFragment.OnFragmentInteractionListener, SocialFragment.OnFragmentInteractionListener, FriendListFragment.OnFragmentInteractionListener,
-        ArenaProfileFragment.OnFragmentInteractionListener, View.OnClickListener
+        ArenaProfileFragment.OnFragmentInteractionListener, LoginFragment.OnFragmentInteractionListener, View.OnClickListener
 {
 
     /**
@@ -49,7 +52,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    ViewPager mViewPager;
+    public ViewPager mViewPager;
 
 
     public static MobileServiceClient mClient;
@@ -60,9 +63,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public static SocialFragment mBlogs;
 
     public String localPlayerID = "1c211a55-2a53-4152-b74f-ece1606e172a";
+    public static final String playerID = "LocalPlayerID";
 
     public static PlayerProfileFragment mFriendProfile;
     public static ArenaProfileFragment mArenaProfile;
+    public static LoginFragment mLogin;
+
+    public boolean needLogin = false;
+
+    public ProgressDialog pDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,43 +130,37 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
 
         //Get local player ID
-        String FILENAME = "playerID";
-        try
+
+        SharedPreferences settings = getPreferences(0);
+
+        if (settings.contains(playerID) && settings.getString(playerID, "") != "")
         {
-            FileInputStream fis = openFileInput(FILENAME);
-            byte[] buffer = new byte[]{};
-            fis.read(buffer);
-            this.localPlayerID = buffer.toString();
 
+
+            localPlayerID = settings.getString(playerID, "");
+            needLogin = false;
         }
-        catch (FileNotFoundException fileNotFoundException)
+        else
         {
-            Intent mIntent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(mIntent);
-            //startActivityForResult(mIntent, R.layout.activity_main);
+            needLogin = true;
 
         }
-        catch (IOException iOException)
-        {
-            messageDialog(iOException.getMessage());
-        }
 
-    }
+        pDialog = new ProgressDialog(this);
 
-    //Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // TODO Auto-generated method stub
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case R.layout.activity_main:
-                if(requestCode==20){
-                    localPlayerID= data.getStringExtra("ID");
-                }
-                break;
+        // 设置进度条风格，风格为圆形，旋转的
+        pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 
-            default:
-                break;
-        }
+        // 设置ProgressDialog 提示信息
+        pDialog.setMessage("Loading");
+
+        // 设置ProgressDialog 的进度条是否不明确
+        pDialog.setIndeterminate(false);
+
+        // 设置ProgressDialog 是否可以按退回按键取消
+        pDialog.setCancelable(false);
+
+        pDialog.hide();
     }
 
 
@@ -191,10 +194,18 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id)
+        {
+            case R.id.action_settings:
+                return true;
+            case R.id.log_out:
+                SharedPreferences settings = getPreferences(0);
+                SharedPreferences.Editor editor = settings.edit();
+                editor.clear();
+                editor.commit();
+                this.needLogin = true;
+                reload();
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -234,6 +245,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public void registerClicked(View v){
         mArenaProfile.register(v);
+    }
+
+    public void signClicked(View v) {
+        mLogin.sign(v);
     }
 
 
@@ -289,6 +304,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
+    public void reload() {
+        Intent intent = getIntent();
+        overridePendingTransition(0,0);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        finish();
+
+        overridePendingTransition(0,0);
+        startActivity(intent);
+    }
 
 
     /**
@@ -308,10 +332,20 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
             switch (position) {
                 case 0:
-                    if (mPlayerProfile == null) {
-                        mPlayerProfile = PlayerProfileFragment.newInstance(localPlayerID);
+                    if (needLogin)
+                    {
+                        if (mLogin == null)
+                        {
+                            mLogin = LoginFragment.newInstance();
+                        }
+                        return mLogin;
                     }
-                    return mPlayerProfile;
+                    else {
+                        if (mPlayerProfile == null || mPlayerProfile.playerID != localPlayerID) {
+                            mPlayerProfile = PlayerProfileFragment.newInstance(localPlayerID);
+                        }
+                        return mPlayerProfile;
+                    }
                 case 1:
                     if (mFriends == null){
                         mFriends = FriendListFragment.newInstance(localPlayerID);

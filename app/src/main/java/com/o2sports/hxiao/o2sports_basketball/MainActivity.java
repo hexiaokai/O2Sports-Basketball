@@ -33,6 +33,11 @@ import com.o2sports.hxiao.o2sports_basketball.fragment.LoginFragment;
 import com.o2sports.hxiao.o2sports_basketball.fragment.PlayerProfileFragment;
 import com.o2sports.hxiao.o2sports_basketball.fragment.SocialFragment;
 
+import android.os.AsyncTask;
+import com.google.android.gms.gcm.*;
+import com.microsoft.windowsazure.messaging.*;
+import com.microsoft.windowsazure.notifications.NotificationsManager;
+
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, PlayerProfileFragment.OnFragmentInteractionListener,
         ArenaListFragment.OnFragmentInteractionListener, SocialFragment.OnFragmentInteractionListener, FriendListFragment.OnFragmentInteractionListener,
@@ -72,6 +77,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public boolean needLogin = false;
 
     public ProgressDialog pDialog;
+
+    private String SENDER_ID = "196600901952l";
+    private GoogleCloudMessaging gcm;
+    private NotificationHub hub;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,20 +155,24 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         }
 
-        pDialog = new ProgressDialog(this);
+        // Register Notification Hub
+        NotificationsManager.handleNotifications(this, SENDER_ID, MyNotificationHandler.class);
+        gcm = GoogleCloudMessaging.getInstance(this);
+        String connectionString = "Endpoint=sb://o2servicehub-ns.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=vo9lc6SkLc0HpftImT9rC4n5Ttp57LhGkVO60h7683c=";
+        hub = new NotificationHub("o2servicehub", connectionString, this);
+        registerWithNotificationHubs();
 
+        // Set up Pending Dialog
+
+        pDialog = new ProgressDialog(this);
         // 设置进度条风格，风格为圆形，旋转的
         pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-
         // 设置ProgressDialog 提示信息
         pDialog.setMessage("Loading");
-
         // 设置ProgressDialog 的进度条是否不明确
         pDialog.setIndeterminate(false);
-
         // 设置ProgressDialog 是否可以按退回按键取消
         pDialog.setCancelable(false);
-
         pDialog.hide();
     }
 
@@ -314,6 +327,21 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         startActivity(intent);
     }
 
+    @SuppressWarnings("unchecked")
+    private void registerWithNotificationHubs() {
+        new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object... params) {
+                try {
+                    String regid = gcm.register(SENDER_ID);
+                    hub.register(regid);
+                } catch (Exception e) {
+                    return e;
+                }
+                return null;
+            }
+        }.execute(null, null, null);
+    }
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
